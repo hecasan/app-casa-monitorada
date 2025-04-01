@@ -1,10 +1,43 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: 'http://localhost:8080',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
 });
 
-// Cliente endpoints
+// Add request interceptor for logging
+api.interceptors.request.use(
+  config => {
+    console.log('Fazendo requisição para:', config.url);
+    return config;
+  },
+  error => {
+    console.error('Erro na requisição:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for logging
+api.interceptors.response.use(
+  response => {
+    console.log('Resposta de:', response.config.url, response.status);
+    return response;
+  },
+  error => {
+    console.error('Erro na resposta:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message
+    });
+    return Promise.reject(error);
+  }
+);
+
+// Cliente endpoints - sem prefixo /api
 export const clienteService = {
   getAll: () => api.get('/clientes'),
   getById: (id) => api.get(`/clientes/${id}`),
@@ -13,22 +46,22 @@ export const clienteService = {
   delete: (id) => api.delete(`/clientes/${id}`),
 };
 
-// Ambiente endpoints
+// Ambiente endpoints - com prefixo /api
 export const ambienteService = {
-  getAll: () => api.get('/ambientes'),
-  getById: (id) => api.get(`/ambientes/${id}`),
-  create: (data) => api.post('/ambientes', data),
-  update: (id, data) => api.put(`/ambientes/${id}`, data),
-  delete: (id) => api.delete(`/ambientes/${id}`),
+  getAll: () => api.get('/api/ambientes'),
+  getById: (id) => api.get(`/api/ambientes/${id}`),
+  create: (data) => api.post('/api/ambientes', data),
+  update: (id, data) => api.put(`/api/ambientes/${id}`, data),
+  delete: (id) => api.delete(`/api/ambientes/${id}`),
 };
 
-// Dispositivo endpoints
+// Dispositivo endpoints - com prefixo /api
 export const dispositivoService = {
-  getAll: () => api.get('/dispositivos'),
-  getById: (id) => api.get(`/dispositivos/${id}`),
-  create: (data) => api.post('/dispositivos', data),
-  update: (id, data) => api.put(`/dispositivos/${id}`, data),
-  delete: (id) => api.delete(`/dispositivos/${id}`),
+  getAll: () => api.get('/api/dispositivos'),
+  getById: (id) => api.get(`/api/dispositivos/${id}`),
+  create: (data) => api.post('/api/dispositivos', data),
+  update: (id, data) => api.put(`/api/dispositivos/${id}`, data),
+  delete: (id) => api.delete(`/api/dispositivos/${id}`),
 };
 
 export default api; 
